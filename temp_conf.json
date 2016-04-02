@@ -5,12 +5,14 @@
             "port": 587,
             "account": "",
             "password": "",
-            "to": ["mail", "mail"]
+            "to": ["foo@bar"]
         }
     },
     "filter": {
-        "format": "",
-        "year": [2015, 0]
+        "format": "BluRay",
+        "year": [2015, 0],
+        "audio_codec": ["DTS", "TrueHD"],
+        "video_codec": ["h264"]
     },
     "general": {
         "interval": 86400
