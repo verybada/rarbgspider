@@ -205,8 +205,8 @@ class RARBGspider(object):
                 "file": {
                     "class": "logging.handlers.TimedRotatingFileHandler",
                     "level": "INFO",
-                    "filename": "%s/RarbgSpider-%s.log" % (self._workspace,
-                                                           datetime.date.today()),
+                    "filename": "%s/%s.log" % (self._workspace,
+                                               datetime.date.today()),
                     "formatter": "detail",
                     "when": "D",
                     "backupCount": 30
