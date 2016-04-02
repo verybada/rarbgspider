@@ -1,0 +1,18 @@
+{
+    "handlers": {
+        "email": {
+            "host": "",
+            "port": 587,
+            "account": "",
+            "password": "",
+            "to": ["mail", "mail"]
+        }
+    },
+    "filter": {
+        "format": "",
+        "year": [2015, 0]
+    },
+    "general": {
+        "interval": 86400
+    }
+}
