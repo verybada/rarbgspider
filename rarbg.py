@@ -185,7 +185,7 @@ class RARBGspider(object):
         self._db_conn = self._get_db_connection()
         self._pool = MoviePool(self._db_conn)
         # FIXME: category 44 = 1080p movie
-        self._pager = RarbgPager(category=44, search="2016")
+        self._pager = RarbgPager(category=44)
         self._setting_logger()
 
     def _setting_logger(self):
