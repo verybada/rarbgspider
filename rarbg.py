@@ -72,7 +72,11 @@ class TorrentListPage(object):
         lista2t_table = self._soup.find('table', class_='lista2t')
         assert lista2t_table
         for tr in lista2t_table.find_all('tr', class_='lista2'):
-            yield self._parse(tr)
+            try:
+                yield self._parse(tr)
+            except Exception as exp:
+                LOG.exception("Parsing error. tr %s, exc %s", tr, exp)
+                continue
 
 
 class RarbgTorrent(Rarbg, dict):
