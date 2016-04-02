@@ -146,7 +146,7 @@ class RARBGspider(object):
             "handlers": {
                 "console": {
                     "class": "logging.StreamHandler",
-                    "level": "DEBUG"
+                    "level": "DEBUG",
                     "formatter": "precise",
                 },
                 "file": {
