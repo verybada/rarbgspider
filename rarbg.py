@@ -124,6 +124,7 @@ class RARBGspider(object):
     def __init__(self, conf):
         self._conf = conf
         self._workspace = self.__class__.__name__
+        self._debug = False
         self._update_general_settings()
         self._create_workspace()
 
@@ -138,7 +139,7 @@ class RARBGspider(object):
     def _setting_logger(self):
         log_dict = {
             "version": 1,
-            "disable_existing_loggers": True,
+            "disable_existing_loggers": not self._debug,
             "root": {
                 "level": "NOTSET",
                 "handlers": ["console", "file"]
@@ -182,8 +183,9 @@ class RARBGspider(object):
         if not general_conf:
             return
 
-        if general_conf.get('workspace'):
-            self._workspace = general_conf['workspace']
+        self._workspace = general_conf.get('workspace',
+                                           self.__class__.__name__)
+        self._debug = general_conf.get('debug', False)
 
     def _get_filter(self):
         filter_conf = self._conf.get('filter')

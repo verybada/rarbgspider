@@ -1,10 +1,28 @@
 import logging
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger()
 
 class Filter(object):
     def __init__(self, conf):
         self._conf = conf
+
+    def _filter_max_min(self, key, value, info_value):
+        min_, max_ = value
+        if min_ != 0 and info_value < min_:
+            return False
+
+        if max_ != 0 and info_value > max:
+            return False
+        return True
+
+    def _filter_list_str(self, key, value, info_value):
+        for s in value:
+            if self._filter_str(key, s, info_value):
+                return True
+        return False
+
+    def _filter_str(self, key, value, info_value):
+        return value.lower() == info_value.lower()
 
     def filter(self, movie_info):
         '''
@@ -21,15 +39,15 @@ class Filter(object):
                 return False
 
             if key == "year":
-                min_, max_ = value
-                if min_ != 0 and info_value < min_:
-                    return False
-
-                if max_ != 0 and info_value > max:
+                if not self._filter_max_min(key, value, info_value):
                     return False
             else:
-                if info_value != value:
-                    return False
+                if isinstance(value, list):
+                    if not self._filter_list_str(key, value, info_value):
+                        return False
+                else:
+                    if not self._filter_str(key, value, info_value):
+                        return False
 
         return True
 

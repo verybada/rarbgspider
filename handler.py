@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger()
 
 
 class HandlerManager(object):
