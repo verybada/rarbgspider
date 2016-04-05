@@ -177,7 +177,7 @@ class RarbgPager(Rarbg):
         return self._page
 
 
-class RARBGspider(Daemon):
+class RarbgSubscriber(Daemon):
     def __init__(self, conf):
         self._conf = conf
         general_conf = self._conf.get('general', dict())
@@ -195,7 +195,7 @@ class RARBGspider(Daemon):
         # FIXME: category 44 = 1080p movie
         self._pager = RarbgPager(category=44)
         self._setting_logger()
-        super(RARBGspider, self).__init__(self._pid_file)
+        super(RarbgSubscriber, self).__init__(self._pid_file)
 
     def _setting_logger(self):
         log_dict = {
@@ -294,7 +294,7 @@ class RARBGspider(Daemon):
         LOG.info("Crawl done")
 
     def start(self):
-        super(RARBGspider, self).start()
+        super(RarbgSubscriber, self).start()
 
     def run(self):
         while self.daemon_alive:
@@ -321,5 +321,5 @@ if __name__ == "__main__":
         conf = fp.read()
         conf_dict = json.loads(conf)
 
-    r = RARBGspider(conf_dict)
+    r = RarbgSubscriber(conf_dict)
     r.start()
