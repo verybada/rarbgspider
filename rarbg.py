@@ -6,7 +6,7 @@ import logging.config
 import logging.handlers
 import sys
 import json
-import os
+import time
 import datetime
 import urlparse
 
@@ -15,6 +15,7 @@ import lxml
 from bs4 import BeautifulSoup
 from guessit import guessit
 
+from .daemon import Daemon
 from .pool import (MoviePool, MovieInfo)
 from .handler import HandlerManager
 from .filter import Filter
@@ -176,12 +177,15 @@ class RarbgPager(Rarbg):
         return self._page
 
 
-class RARBGspider(object):
+class RARBGspider(Daemon):
     def __init__(self, conf):
         self._conf = conf
-        self._workspace = self.__class__.__name__
-        self._debug = False
-        self._update_general_settings()
+        general_conf = self._conf.get('general', dict())
+        self._workspace = general_conf.get('workspace',
+                                           self.__class__.__name__)
+        self._debug = general_conf.get('debug', False)
+        self._interval = general_conf.get('interval', 86400)
+        self._pid_file = os.path.join(self._workspace, 'pid')
         self._create_workspace()
 
         self._filter = self._get_filter()
@@ -191,6 +195,7 @@ class RARBGspider(object):
         # FIXME: category 44 = 1080p movie
         self._pager = RarbgPager(category=44)
         self._setting_logger()
+        super(RARBGspider, self).__init__(self._pid_file)
 
     def _setting_logger(self):
         log_dict = {
@@ -233,15 +238,6 @@ class RARBGspider(object):
         path = os.path.abspath(self._workspace)
         if not os.path.exists(path):
             os.mkdir(path)
-
-    def _update_general_settings(self):
-        general_conf = self._conf.get('general')
-        if not general_conf:
-            return
-
-        self._workspace = general_conf.get('workspace',
-                                           self.__class__.__name__)
-        self._debug = general_conf.get('debug', False)
 
     def _get_filter(self):
         filter_conf = self._conf.get('filter')
@@ -297,17 +293,33 @@ class RARBGspider(object):
         self._handlers.submit()
         LOG.info("Crawl done")
 
+    def start(self):
+        super(RARBGspider, self).start()
+
+    def run(self):
+        while self.daemon_alive:
+            try:
+                LOG.info("Start scanning")
+                self.crawl()
+                self.close()
+                t = time.time() + self._interval
+                next_time = datetime.datetime.fromtimestamp(t)
+                LOG.info("Next scan at %s", next_time)
+                time.sleep(self._interval)
+            except Exception as exp:
+                LOG.exception(exp)
+                self.daemon_alive = False
+                break
+
 
 if __name__ == "__main__":
     assert len(sys.argv) == 2
 
-    try:
-        conf_path = sys.argv[1]
-        with open(conf_path, "rb") as fp:
-            conf = fp.read()
-            conf_dict = json.loads(conf)
-            r = RARBGspider(conf_dict)
-            r.crawl()
-            r.close()
-    except Exception as exp:
-        LOG.exception(exp)
+    conf_dict = None
+    conf_path = sys.argv[1]
+    with open(conf_path, "rb") as fp:
+        conf = fp.read()
+        conf_dict = json.loads(conf)
+
+    r = RARBGspider(conf_dict)
+    r.start()
