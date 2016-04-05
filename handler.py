@@ -108,7 +108,7 @@ class EmailHandler(Handler):
             return
         outer = MIMEMultipart()
         outer['Subject'] = "%s RARBG updated torrents" % today
-        outer['From'] = 'RARBGspider'
+        outer['From'] = self._account
         outer['To'] = ','.join(self._to)
         html = self._info_to_html()
         msg = MIMEText(html, 'html')
@@ -117,6 +117,6 @@ class EmailHandler(Handler):
         s = smtplib.SMTP(self._host, self._port)
         s.starttls()
         s.login(self._account, self._password)
-        s.sendmail('rarbgspider@hotmail.com', self._to, outer.as_string())
+        s.sendmail(self._account, self._to, outer.as_string())
         LOG.info("%s has %d new torrents, sending mail to %s",
                  today, len(self._info), self._to)
