@@ -33,7 +33,6 @@ class Filter(object):
 
         for key, value in self._conf.iteritems():
             info_value = getattr(movie_info, key, None)
-            assert info_value, "Unknown condition %s" % key
             LOG.debug("Filter %s expected %s, current %s",
                       key, value, info_value)
             if not info_value:
