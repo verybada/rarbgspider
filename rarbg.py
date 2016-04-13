@@ -218,7 +218,7 @@ class RarbgSubscriber(Daemon):
                     "class": "logging.handlers.TimedRotatingFileHandler",
                     "level": "DEBUG",
                     "filename": "%s/%s.log" % (self._workspace,
-                                               datetime.date.today()),
+                                               self.__class__.__name__),
                     "formatter": "detail",
                     "when": "D",
                     "backupCount": 30
