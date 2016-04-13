@@ -213,7 +213,7 @@ class RarbgSubscriber(Daemon):
                 },
                 "file": {
                     "class": "logging.handlers.TimedRotatingFileHandler",
-                    "level": "INFO",
+                    "level": "DEBUG",
                     "filename": "%s/%s.log" % (self._workspace,
                                                datetime.date.today()),
                     "formatter": "detail",
