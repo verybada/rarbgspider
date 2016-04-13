@@ -176,6 +176,9 @@ class RarbgPager(Rarbg):
         self._current_index = self._get_next_index(resp)
         return self._page
 
+    def reset(self):
+        self._currnet_index = 1
+
 
 class RarbgSubscriber(Daemon):
     def __init__(self, conf):
@@ -305,6 +308,7 @@ class RarbgSubscriber(Daemon):
                 t = time.time() + self._interval
                 next_time = datetime.datetime.fromtimestamp(t)
                 LOG.info("Next scan at %s", next_time)
+                self._pager.reset()
                 time.sleep(self._interval)
             except Exception as exp:
                 LOG.exception(exp)
