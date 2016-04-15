@@ -176,9 +176,6 @@ class RarbgPager(Rarbg):
         self._current_index = self._get_next_index(resp)
         return self._page
 
-    def reset(self):
-        self._currnet_index = 1
-
 
 class RarbgSubscriber(Daemon):
     def __init__(self, conf):
@@ -191,14 +188,21 @@ class RarbgSubscriber(Daemon):
         self._pid_file = os.path.join(self._workspace, 'pid')
         self._create_workspace()
 
-        self._filter = self._get_filter()
-        self._handlers = self._get_handler_manager()
+        self._setting_logger()
         self._db_conn = self._get_db_connection()
         self._pool = MoviePool(self._db_conn)
+        self._filter = None
+        self._handlers = None
+        self._pager = None
+        self.reset()
+        super(RarbgSubscriber, self).__init__(self._pid_file)
+
+    def reset(self):
+        LOG.debug("Reset filter, pager and handlers")
+        self._filter = self._get_filter()
         # FIXME: category 44 = 1080p movie
         self._pager = RarbgPager(category=44)
-        self._setting_logger()
-        super(RarbgSubscriber, self).__init__(self._pid_file)
+        self._handlers = self._get_handler_manager()
 
     def _setting_logger(self):
         log_dict = {
@@ -308,7 +312,7 @@ class RarbgSubscriber(Daemon):
                 t = time.time() + self._interval
                 next_time = datetime.datetime.fromtimestamp(t)
                 LOG.info("Next scan at %s", next_time)
-                self._pager.reset()
+                self.reset()
                 time.sleep(self._interval)
             except Exception as exp:
                 LOG.exception(exp)
