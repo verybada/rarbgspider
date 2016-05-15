@@ -50,6 +50,7 @@ class Handler(object):
 
 
 class EmailHandler(Handler):
+    # pylint: disable=too-many-arguments
     def __init__(self, host=None, port=None,
                  account=None, password=None, to=None):
         assert host
@@ -58,6 +59,7 @@ class EmailHandler(Handler):
         assert password
         assert to
 
+        super(EmailHandler, self).__init__()
         self._host = host
         self._port = port
         self._account = account

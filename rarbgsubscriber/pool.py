@@ -1,5 +1,6 @@
-class MovieInfo(dict):
+class MovieInfo(dict):  # pylint: disable=too-many-instance-attributes
     def __init__(self, raw):
+        super(MovieInfo, self).__init__(raw)
         self._raw = raw
         self.title = raw['title']
         self.year = raw.get('year', 'UNKNOWN')
@@ -64,8 +65,8 @@ class MoviePool(object):
                    value.href, value.video_codec, value.audio_codec,
                    value.imdb, value.size))
 
-    def _result_to_obj(self, result):
-        _d = {
+    def _result_to_obj(self, result):  # pylint: disable=no-self-use
+        info_dict = {
             'title': result[0],
             'year': result[1],
             'screen_size': result[2],
@@ -76,7 +77,7 @@ class MoviePool(object):
             'imdb': result[7],
             'size': result[8]
         }
-        return MovieInfo(_d)
+        return MovieInfo(info_dict)
 
     def find(self, href):
         c = self._con.cursor()
@@ -102,7 +103,7 @@ class MoviePool(object):
 
             yield self._result_to_obj(result)
 
-    def remove(self, value):
+    def remove(self, value):  # pylint: disable=no-self-use
         assert isinstance(value, MovieInfo)
         # First, delte from detail
         # c = self._con.cursor()

@@ -29,6 +29,7 @@ import time
 import signal
 
 
+# pylint: skip-file
 class Daemon(object):
     """
     A generic daemon class.

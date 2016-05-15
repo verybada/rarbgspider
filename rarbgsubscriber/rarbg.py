@@ -11,7 +11,6 @@ import datetime
 import urlparse
 
 import requests
-import lxml
 from bs4 import BeautifulSoup
 from guessit import guessit
 
@@ -24,7 +23,7 @@ from .filter import Filter
 LOG = logging.getLogger()
 
 
-class Rarbg(object):
+class Rarbg(object):  # pylint: disable=too-few-public-methods
     def __init__(self):
         # TODO: how to pass bot check
         self._cookie = """
@@ -49,12 +48,13 @@ class Rarbg(object):
         return resp
 
 
-class TorrentListPage(object):
+# pylint: disable=invalid-name
+class TorrentListPage(object):  # pylint: disable=too-few-public-methods
     def __init__(self, host, resp):
         self._host = host
         self._soup = BeautifulSoup(resp.content, 'lxml')
 
-    def _get_imdb(self, tag):
+    def _get_imdb(self, tag):  # pylint: disable=no-self-use
         if not tag:
             return 0.0
 
@@ -67,7 +67,7 @@ class TorrentListPage(object):
 
     def _parse(self, tr):
         result = dict()
-        _, info_tag, date_tag, size_tag, _, _, _, _ = tr.find_all('td')
+        _, info_tag, _, size_tag, _, _, _, _ = tr.find_all('td')
         imdb_tag = info_tag.find('span', style=re.compile('color*'))
         result['screen_size'] = "UNKNOWN"
         result['href'] = urlparse.urljoin(self._host, info_tag.a['href'])
@@ -82,11 +82,12 @@ class TorrentListPage(object):
         for tr in lista2t_table.find_all('tr', class_='lista2'):
             try:
                 yield self._parse(tr)
-            except Exception as exp:
+            except Exception as exp:  # pylint: disable=broad-except
                 LOG.exception("Parsing error. tr %s, exc %s", tr, exp)
                 continue
 
 
+# pylint: disable=too-many-instance-attributes
 class RarbgTorrent(Rarbg, dict):
     def __init__(self, raw):
         super(RarbgTorrent, self).__init__()
@@ -122,7 +123,7 @@ class RarbgTorrent(Rarbg, dict):
     def cover(self):
         if not self._page_soup:
             resp = self.conn(self._page_href)
-            self._soup = BeautifulSoup(resp.content, 'lxml')
+            self._page_soup = BeautifulSoup(resp.content, 'lxml')
 
         img = self._page_soup.find("img", itemprop="image")
         return urlparse.urljoin(self._host, img['src'])
@@ -185,7 +186,7 @@ class RarbgPager(Rarbg):
 
 
 class RarbgSubscriber(Daemon):
-    def __init__(self, conf):
+    def __init__(self, conf):  # pylint: disable=redefined-outer-name
         self._conf = conf
         general_conf = self._conf.get('general', dict())
         self._workspace = general_conf.get('workspace',
@@ -271,12 +272,12 @@ class RarbgSubscriber(Daemon):
     def close(self):
         self._db_conn.commit()
 
-    def _convert_to_movie_info(self, torrent):
+    def _convert_to_movie_info(self, torrent):  # pylint: disable=no-self-use
         info = None
         try:
-            info = MovieInfo(torrent._raw)
+            info = MovieInfo(torrent._raw)  # pylint: disable=protected-access
             info.href = torrent.href
-        except Exception as exp:
+        except Exception:  # pylint: disable=broad-except
             LOG.warn("Incomplete torrent %s", torrent)
         return info
 
@@ -322,7 +323,7 @@ class RarbgSubscriber(Daemon):
                 LOG.info("Next scan at %s", next_time)
                 self.reset()
                 time.sleep(self._interval)
-            except Exception as exp:
+            except Exception as exp:  # pylint: disable=broad-except
                 LOG.exception(exp)
                 self.daemon_alive = False
                 break
