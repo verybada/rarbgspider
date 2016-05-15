@@ -1,3 +1,3 @@
 # Rarbg subscriber
 
-An automation tool to subscribe RARBG.to
+An automation tool to subscribe RARBG.to 
