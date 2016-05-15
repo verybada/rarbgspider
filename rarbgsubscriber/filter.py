@@ -2,6 +2,7 @@ import logging
 
 LOG = logging.getLogger()
 
+
 # pylint: disable=too-few-public-methods,unused-argument,no-self-use
 class Filter(object):
     def __init__(self, conf):
