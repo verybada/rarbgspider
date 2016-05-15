@@ -2,6 +2,7 @@ import logging
 
 LOG = logging.getLogger()
 
+
 class Filter(object):
     def __init__(self, conf):
         self._conf = conf
@@ -50,4 +51,3 @@ class Filter(object):
                         return False
 
         return True
-

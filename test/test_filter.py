@@ -2,8 +2,8 @@ import pytest
 import logging
 import sys
 
-from ..filter import *
-from ..pool import *
+from rarbgsubscriber.filter import *
+from rarbgsubscriber.pool import *
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 def get_filter_obj(screen_size="1080p", format_="BluRay", year=[0, 0],

@@ -26,7 +26,6 @@ class HandlerManager(object):
                 LOG.debug("append %s handler", type(handler))
                 self._handlers.append(handler)
 
-
     def register(self, movie_info):
         for handler in self._handlers:
             handler.register(movie_info)
