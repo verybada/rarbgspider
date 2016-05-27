@@ -26,14 +26,7 @@ LOG = logging.getLogger()
 class Rarbg(object):  # pylint: disable=too-few-public-methods
     def __init__(self):
         # TODO: how to pass bot check
-        self._cookie = """
-            c_cookie=ljd3gcszby;
-            expla2=1%7CSat%2C%2005%20Mar%202016%2021%3A46%3A26%20GMT;
-            LastVisit=1457192974; vDVPaqSe=r9jSB2Wk; expla=2; tcc;
-            __utma=9515318.355702320.1444490883.1457101385.1457192786.76;
-            __utmb=9515318.4.10.1457192786; __utmc=9515318;
-            __utmz=9515318.1447162163.12.4.utmcsr=
-            google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)"""
+        self._cookie = 'c_cookie=ljd3gcszby; expla2=1%7CSat%2C%2005%20Mar%202016%2021%3A46%3A26%20GMT; LastVisit=1457192974; vDVPaqSe=r9jSB2Wk; expla=2; tcc; __utma=9515318.355702320.1444490883.1457101385.1457192786.76; __utmb=9515318.4.10.1457192786; __utmc=9515318; __utmz=9515318.1447162163.12.4.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)'
         self._host = 'http://rarbg.to'
 
     def conn(self, uri, query=None):
@@ -73,6 +66,8 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
         result['href'] = urlparse.urljoin(self._host, info_tag.a['href'])
         result['imdb'] = self._get_imdb(imdb_tag)
         result['size'] = size_tag.text
+        image_parser = re.match('.+src=\\\\\'(.+)\\\\\' ', info_tag.a['onmouseover'])        
+        result['image'] = urlparse.urljoin('http:', image_parser.group(1))
         result.update(guessit(info_tag.a['title']))
         return RarbgTorrent(result)
 
