@@ -11,6 +11,7 @@ class MovieInfo(dict):  # pylint: disable=too-many-instance-attributes
         self.video_codec = raw.get('video_codec')
         self.audio_codec = raw.get('audio_codec')
         self.imdb = raw['imdb']
+        self.image = raw.get('image')
 
     def __str__(self):
         return "%s.%s.%s.%s.%s.%s.%s" % (self.title, self.year,
@@ -28,7 +29,8 @@ class MoviePool(object):
         c = self._con.cursor()
         c.execute("PRAGMA foreign_keys = ON")
         c.execute("""CREATE TABLE IF NOT EXISTS pool(
-                    title TEXT,
+                    image TEXT,
+				    title TEXT,
                     year TEXT,
                     PRIMARY KEY(title, year))""")
 
