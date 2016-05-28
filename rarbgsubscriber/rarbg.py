@@ -257,9 +257,8 @@ class RarbgSubscriber(Daemon):
                     "format": "%(asctime)s - %(message)s"
                 },
                 "detail": {
-                    "format": """
-                        %(asctime)s %(filename)s:%(funcName)s:%(lineno)d -
-                        %(message)s"""
+                    "format": "%(asctime)s %(filename)s:%(funcName)s:%(lineno)d -"\
+			    " %(message)s"
                 }
             },
         }
