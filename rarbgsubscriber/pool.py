@@ -30,7 +30,7 @@ class MoviePool(object):
         c.execute("PRAGMA foreign_keys = ON")
         c.execute("""CREATE TABLE IF NOT EXISTS pool(
                     image TEXT,
-				    title TEXT,
+                    title TEXT,
                     year TEXT,
                     PRIMARY KEY(title, year))""")
 

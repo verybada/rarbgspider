@@ -97,9 +97,9 @@ class EmailHandler(Handler):
                     <td align=center>%s</td>
                     <td align=center>%s</td>
                     <a href=\"%s\">Torrent</a>
-                </tr>""" % (info.image, info.title, info.resolution, info.format,
-                            info.size, info.video_codec, info.audio_codec,
-                            info.imdb, info.href)
+                </tr>""" % (info.image, info.title, info.resolution,
+                            info.format, info.size, info.video_codec,
+                            info.audio_codec, info.imdb, info.href)
         html += "</table>"
         html += "</html>"
         return html
