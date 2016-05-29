@@ -5,11 +5,11 @@ from .rarbg import RarbgSubscriber
 
 
 assert len(sys.argv) == 2
-conf_dict = None
-conf_path = sys.argv[1]
-with open(conf_path, "rb") as fp:
-    conf = fp.read()
-    conf_dict = json.loads(conf)
+CONF_DICT = None
+CONF_PATH = sys.argv[1]
+with open(CONF_PATH, "rb") as fp:
+    CONF = fp.read()
+    CONF_DICT = json.loads(CONF)
 
-r = RarbgSubscriber(conf_dict)
-r.start()
+RARBGSUB = RarbgSubscriber(CONF_DICT)
+RARBGSUB.start()
