@@ -2,7 +2,6 @@ class MovieInfo(dict):  # pylint: disable=too-many-instance-attributes
     def __init__(self, raw):
         super(MovieInfo, self).__init__(raw)
         self._raw = raw
-        print("raw==%s" %raw)
         self.title = raw['title']
         self.year = raw.get('year', 'UNKNOWN')
         self.resolution = raw['screen_size']
@@ -13,7 +12,7 @@ class MovieInfo(dict):  # pylint: disable=too-many-instance-attributes
         self.audio_codec = raw.get('audio_codec')
         self.imdb = raw['imdb']
         self.image = raw.get('image')
-        self.Genres = raw.get('Genres', 'UNKNOWN')
+        self.genres = raw.get('genres', 'UNKNOWN')
 
     def __str__(self):
         return "%s.%s.%s.%s.%s.%s.%s" % (self.title, self.year,
