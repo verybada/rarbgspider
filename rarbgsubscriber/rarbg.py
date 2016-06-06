@@ -58,7 +58,7 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
         text = tag.text[ptr+len('IMDB: '):]
         return float(text.split('/')[0])
 		
-    def _get_type(self, tag):  # pylint: disable=no-self-use
+    def _get_genres(self, tag):  # pylint: disable=no-self-use
         
         if not tag:
             return "NULL"
@@ -77,7 +77,7 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
         result['screen_size'] = "UNKNOWN"
         result['href'] = urlparse.urljoin(self._host, info_tag.a['href'])
         result['imdb'] = self._get_imdb(imdb_tag)
-        result['genres'] = self._get_type(imdb_tag)
+        result['genres'] = self._get_genres(imdb_tag)
         result['size'] = size_tag.text
         image_parser = re.match('.+src=\\\\\'(.+)\\\\\' ', info_tag.a['onmouseover'])        
         result['image'] = urlparse.urljoin('http:', image_parser.group(1))

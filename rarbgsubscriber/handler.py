@@ -77,7 +77,7 @@ class EmailHandler(Handler):
             <tr>
                 <th bgcolor="#b8b894">Thumbnail</th>
                 <th bgcolor="#b8b894">Title</th>
-                <th bgcolor="#b8b894">genres</th>
+                <th bgcolor="#b8b894">Genres</th>
                 <th bgcolor="#b8b894">Resoltion</th>
                 <th bgcolor="#b8b894">Format</th>
                 <th bgcolor="#b8b894">Size</th>
