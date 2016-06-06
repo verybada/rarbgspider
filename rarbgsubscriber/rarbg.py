@@ -61,11 +61,11 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
     def _get_genres(self, tag):  # pylint: disable=no-self-use
         
         if not tag:
-            return "NULL"
+            return "UNKNOWN"
 
         genres = re.match('(.+)IMDB', tag.text)
         if not genres:
-            return "NULL"
+            return "UNKNOWN"
         temp_genres = genres.group(1)
         temp_genress = temp_genres.replace(",", "<br>")
         return temp_genress
@@ -111,7 +111,7 @@ class RarbgTorrent(Rarbg, dict):
         self.video_codec = raw.get('video_codec')
         self.audio_codec = raw.get('audio_codec')
         self.imdb = raw['imdb']
-        self.genres = raw.get('genres', 'UNKNOWN')
+        self.genres = raw.get('genres')
 
     def __str__(self):
         return "%s.%s.%s.%s.%s.%s.%s" % (self.title, self.year,
