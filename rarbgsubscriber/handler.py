@@ -77,7 +77,7 @@ class EmailHandler(Handler):
             <tr>
                 <th bgcolor="#b8b894">Thumbnail</th>
                 <th bgcolor="#b8b894">Title</th>
-                <th bgcolor="#b8b894">Genres</th>
+                <th bgcolor="#b8b894">genres</th>
                 <th bgcolor="#b8b894">Resoltion</th>
                 <th bgcolor="#b8b894">Format</th>
                 <th bgcolor="#b8b894">Size</th>
@@ -99,7 +99,7 @@ class EmailHandler(Handler):
                     <td align=center>%s</td>
                     <td align=center>%s</td>
                     <a href=\"%s\">Torrent</a>
-                </tr>""" % (info.image, info.title, info.Genres, info.resolution, info.format,
+                </tr>""" % (info.image, info.title, info.genres, info.resolution, info.format,
                             info.size, info.video_codec, info.audio_codec,
                             info.imdb, info.href)
         html += "</table>"
