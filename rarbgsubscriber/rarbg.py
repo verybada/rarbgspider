@@ -168,6 +168,7 @@ class RarbgPager(Rarbg):
     def _get_next_index(self, resp):
         soup = BeautifulSoup(resp.content, 'lxml')
         tag = soup.find('div', id='pager_links')
+        print("tag==%s" %tag)
         assert tag
         b_tag = tag.find('b')
         if not b_tag:
