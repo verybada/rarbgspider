@@ -64,6 +64,18 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
         text = tag.text[ptr+len('IMDB: '):]
         return float(text.split('/')[0])
 
+    def _get_genres(self, tag):  # pylint: disable=no-self-use
+
+        if not tag:
+            return "UNKNOWN"
+
+        genres = re.match('(.+)IMDB', tag.text)
+        if not genres:
+            return "UNKNOWN"
+        temp_genres = genres.group(1)
+        temp_genress = temp_genres.replace(",", "<br>")
+        return temp_genress
+
     def _parse(self, tr):
         result = dict()
         _, info_tag, _, size_tag, _, _, _, _ = tr.find_all('td')
@@ -71,6 +83,7 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
         result['screen_size'] = "UNKNOWN"
         result['href'] = urlparse.urljoin(self._host, info_tag.a['href'])
         result['imdb'] = self._get_imdb(imdb_tag)
+        result['genres'] = self._get_genres(imdb_tag)
         result['size'] = size_tag.text
         image_parser = re.match('.+src=\\\\\'(.+)\\\\\' ',
                                 info_tag.a['onmouseover'])
@@ -105,6 +118,7 @@ class RarbgTorrent(Rarbg, dict):
         self.video_codec = raw.get('video_codec')
         self.audio_codec = raw.get('audio_codec')
         self.imdb = raw['imdb']
+        self.genres = raw.get('genres')
 
     def __str__(self):
         return "%s.%s.%s.%s.%s.%s.%s" % (self.title, self.year,

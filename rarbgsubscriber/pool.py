@@ -12,6 +12,7 @@ class MovieInfo(dict):  # pylint: disable=too-many-instance-attributes
         self.audio_codec = raw.get('audio_codec')
         self.imdb = raw['imdb']
         self.image = raw.get('image')
+        self.genres = raw.get('genres', 'UNKNOWN')
 
     def __str__(self):
         return "%s.%s.%s.%s.%s.%s.%s" % (self.title, self.year,
