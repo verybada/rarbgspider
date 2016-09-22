@@ -1,6 +1,7 @@
+import os
 import smtplib
 import logging
-from datetime import date
+from datetime import date, datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -19,6 +20,8 @@ class HandlerManager(object):
             handler = None
             if name == "email":
                 handler = EmailHandler(**value_dict)
+            elif name == "html":
+                handler = HtmlHandler(**value_dict)
             else:
                 LOG.debug("Unknow handler %s", name)
 
@@ -49,26 +52,11 @@ class Handler(object):
         pass
 
 
-class EmailHandler(Handler):
-    # pylint: disable=too-many-arguments
-    def __init__(self, host=None, port=None,
-                 account=None, password=None, to=None):
-        assert host
-        assert port
-        assert account
-        assert password
-        assert to
-
-        super(EmailHandler, self).__init__()
-        self._host = host
-        self._port = port
-        self._account = account
-        self._password = password
-        self._to = to
+class HtmlHandler(Handler):
+    def __init__(self, output="RarbgSubscriber.html"):
+        super(HtmlHandler, self).__init__()
         self._info = list()
-
-    def register(self, movie_info):
-        self._info.append(movie_info)
+        self.output = output
 
     def _info_to_html(self):
         html = "<html>"
@@ -106,6 +94,39 @@ class EmailHandler(Handler):
         html += "</table>"
         html += "</html>"
         return html
+
+    def register(self, movie_info):
+        self._info.append(movie_info)
+
+    def submit(self):
+        # pylint: disable=invalid-name
+        if os.path.exists(self.output):
+            stat = os.stat(self.output)
+            ts = datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d')
+            new_path = "%s.%s" % (self.output, ts)
+            os.rename(self.output, new_path)
+
+        with open(self.output, "w+") as fp:
+            html = self._info_to_html()
+            fp.write(html)
+
+
+class EmailHandler(HtmlHandler):
+    # pylint: disable=too-many-arguments
+    def __init__(self, host=None, port=None,
+                 account=None, password=None, to=None):
+        assert host
+        assert port
+        assert account
+        assert password
+        assert to
+
+        super(EmailHandler, self).__init__()
+        self._host = host
+        self._port = port
+        self._account = account
+        self._password = password
+        self._to = to
 
     def submit(self):
         today = date.today()
