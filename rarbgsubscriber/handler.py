@@ -21,6 +21,7 @@ class HandlerManager(object):
             if name == "email":
                 handler = EmailHandler(**value_dict)
             elif name == "html":
+                # pylint: disable=R0204
                 handler = HtmlHandler(**value_dict)
             else:
                 LOG.debug("Unknow handler %s", name)
