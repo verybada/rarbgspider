@@ -1,11 +1,5 @@
-import os
 import re
-import sqlite3
 import logging
-import logging.config
-import logging.handlers
-import sys
-import json
 import time
 import datetime
 import urlparse
@@ -15,24 +9,32 @@ from bs4 import BeautifulSoup
 from guessit import guessit
 
 from .daemon import Daemon
-from .pool import (MoviePool, MovieInfo)
-from .handler import HandlerManager
-from .filter import Filter
+from .pool import MovieInfo
 
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
-class Rarbg(object):  # pylint: disable=too-few-public-methods
+class RarbgClient(object):  # pylint: disable=too-few-public-methods
     def __init__(self):
         # TODO: how to pass bot check
-        self._cookie = ''
+        # self._cookie = "skt=EQI257g1z2; skt=EQI257g1z2; wQnP98Kj=wZkvrmuL; LastVisit=1475202467; wQnP98Kj=wZkvrmuL; expla=1; tcc; expla2=1%7CFri%2C%2030%20Sep%202016%2008%3A28%3A25%20GMT"
+        self._cookie = 'LastVisit=1488022701; tcc; aby=2; skt=QRWUKin46h; wQnP98Kj=wZkvrmuL; skt=QRWUKin46h; wQnP98Kj=wZkvrmuL'
         self._host = 'http://rarbg.to'
 
     def conn(self, uri, query=None):
         url = urlparse.urljoin(self._host, uri)
         header = {
-            'Cookie': self._cookie
+            'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Encoding':'gzip, deflate, sdch, br',
+            'Accept-Language':'en-US,en;q=0.8',
+            'Cache-Control':'max-age=0',
+            'Connection':'keep-alive',
+            'Upgrade-Insecure-Requests':'1',
+            'Cookie': self._cookie,
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36',
+            'Host':'rarbg.to',
+            'Referer':'https://rarbg.to/enable_cookies'
         }
 
         sess = requests.Session()
@@ -97,7 +99,7 @@ class TorrentListPage(object):  # pylint: disable=too-few-public-methods
 
 
 # pylint: disable=too-many-instance-attributes
-class RarbgTorrent(Rarbg, dict):
+class RarbgTorrent(RarbgClient, dict):
     def __init__(self, raw):
         super(RarbgTorrent, self).__init__()
         self._raw = raw
@@ -139,7 +141,7 @@ class RarbgTorrent(Rarbg, dict):
         return urlparse.urljoin(self._host, img['src'])
 
 
-class RarbgPager(Rarbg):
+class RarbgPager(RarbgClient):
     def __init__(self, category=None, search=None,
                  start_page=1, end_page=None):
         super(RarbgPager, self).__init__()
@@ -195,91 +197,13 @@ class RarbgPager(Rarbg):
         return self._page
 
 
-class RarbgSubscriber(Daemon):
-    def __init__(self, conf):  # pylint: disable=redefined-outer-name
-        self._conf = conf
-        general_conf = self._conf.get('general', dict())
-        self._workspace = general_conf.get('workspace',
-                                           self.__class__.__name__)
-        self._debug = general_conf.get('debug', False)
-        self._interval = general_conf.get('interval', 86400)
-        self._pid_file = os.path.join(self._workspace, 'pid')
-        self._create_workspace()
-
-        self._setting_logger()
-        self._db_conn = self._get_db_connection()
-        self._pool = MoviePool(self._db_conn)
-        self._filter = None
-        self._handlers = None
-        self._pager = None
-        self.reset()
-        super(RarbgSubscriber, self).__init__(self._pid_file)
-
-    def reset(self):
-        LOG.debug("Reset filter, pager and handlers")
-        self._filter = self._get_filter()
-        # FIXME: category 44 = 1080p movie
-        self._pager = RarbgPager(category=44)
-        self._handlers = self._get_handler_manager()
-
-    def _setting_logger(self):
-        log_dict = {
-            "version": 1,
-            "disable_existing_loggers": not self._debug,
-            "root": {
-                "level": "NOTSET",
-                "handlers": ["console", "file"]
-            },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "level": "DEBUG",
-                    "formatter": "precise",
-                },
-                "file": {
-                    "class": "logging.handlers.TimedRotatingFileHandler",
-                    "level": "DEBUG",
-                    "filename": "%s/%s.log" % (self._workspace,
-                                               self.__class__.__name__),
-                    "formatter": "detail",
-                    "when": "D",
-                    "backupCount": 30
-                }
-            },
-            "formatters": {
-                "precise": {
-                    "format": "%(asctime)s - %(message)s"
-                },
-                "detail": {
-                    "format": ("%(asctime)s %(filename)s:%(funcName)s:"
-                               "%(lineno)d - %(message)s")
-                }
-            },
-        }
-
-        logging.config.dictConfig(log_dict)
-
-    def _create_workspace(self):
-        path = os.path.abspath(self._workspace)
-        if not os.path.exists(path):
-            os.mkdir(path)
-
-    def _get_filter(self):
-        filter_conf = self._conf.get('filter')
-        LOG.info("Filter %s", filter_conf)
-        return Filter(filter_conf)
-
-    def _get_handler_manager(self):
-        handler_conf = self._conf.get('handlers')
-        LOG.info("Handlers %s", handler_conf)
-        return HandlerManager(handler_conf)
-
-    def _get_db_connection(self, name="pool"):
-        path = os.path.join(self._workspace, name)
-        return sqlite3.connect(path)
-
-    def close(self):
-        self._db_conn.commit()
+class RarbgSubscriber(object):
+    # pylint: disable=redefined-outer-name
+    def __init__(self, pool, filter_=None, handler_mgr=None, debug=False):
+        self.debug = debug
+        self._pool = pool
+        self._filter = filter_
+        self._handler_mgr = handler_mgr
 
     def _convert_to_movie_info(self, torrent):  # pylint: disable=no-self-use
         info = None
@@ -290,14 +214,15 @@ class RarbgSubscriber(Daemon):
             LOG.warn("Incomplete torrent %s", torrent)
         return info
 
-    def crawl(self):
+    def run(self):
         stop = False
-        for page in self._pager:
+        pager = RarbgPager(category=44)
+        for page in pager:
             if stop:
                 break
 
             for torrent in page:
-                if torrent is None:
+                if not torrent:
                     continue
 
                 if not self._filter.filter(torrent):
@@ -305,7 +230,10 @@ class RarbgSubscriber(Daemon):
                     continue
 
                 info = self._convert_to_movie_info(torrent)
-                if self._pool.find(info.href) is not None:
+                if not info:
+                    continue
+
+                if self._pool.find(info.href):
                     # FIXME: ugly
                     stop = True
                     LOG.info("duplication torrent, stop")
@@ -313,39 +241,41 @@ class RarbgSubscriber(Daemon):
 
                 LOG.info("New torrent %s", info)
                 self._pool.insert(info)
-                self._handlers.register(info)
+                self._handler_mgr.register(info)
 
-        self._handlers.submit()
-        LOG.info("Crawl done")
+        self._handler_mgr.submit()
+
+
+class RarbgDaemon(Daemon):
+    def __init__(self, pidfile, pool,
+                 filter_=None, handler_mgr=None, interval=None):
+        self._filter = filter_
+        self._handler_mgr = handler_mgr
+        self._interval = interval
+        self._pool = pool
+        super(RarbgDaemon, self).__init__(pidfile)
 
     def start(self):
-        super(RarbgSubscriber, self).start()
+        super(RarbgDaemon, self).start()
 
     def run(self):
         while self.daemon_alive:
             try:
-                LOG.info("Start scanning")
-                self.crawl()
-                self.close()
-                t = time.time() + self._interval
-                next_time = datetime.datetime.fromtimestamp(t)
-                LOG.info("Next scan at %s", next_time)
-                self.reset()
-                time.sleep(self._interval)
-            except Exception as exp:  # pylint: disable=broad-except
+                rarbg = RarbgSubscriber(self._pool, self._filter,
+                                        self._handler_mgr)
+                rarbg.run()
+            except Exception as exp:
                 LOG.exception(exp)
                 self.daemon_alive = False
                 break
 
+            if not self._interval:
+                self.daemon_alive = False
+                break
 
-if __name__ == "__main__":
-    assert len(sys.argv) == 2
+            t = time.time() + self._interval
+            next_time = datetime.datetime.fromtimestamp(t)
+            LOG.info("Next scan at %s", next_time)
+            time.sleep(self._interval)
 
-    conf_dict = None
-    conf_path = sys.argv[1]
-    with open(conf_path, "rb") as fp:
-        conf = fp.read()
-        conf_dict = json.loads(conf)
-
-    r = RarbgSubscriber(conf_dict)
-    r.start()
+        LOG.debug("rarbg daemon stopped")

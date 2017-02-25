@@ -1,1 +1,1 @@
-from .rarbg import RarbgSubscriber
+from .rarbg import RarbgDaemon
