@@ -17,9 +17,7 @@ LOG = logging.getLogger(__name__)
 
 class RarbgClient(object):  # pylint: disable=too-few-public-methods
     def __init__(self):
-        self._cookie = 'expla2=3%7CSat%2C%2018%20Mar%202017%2013%3A17' \
-            '%3A56%20GMT; LastVisit=1489826568; wQnP98Kj=wZkvrmuL;' \
-            'expla=2; tcc; aby=2'
+        self._cookie = ''
         self._host = 'http://rarbg.to'
 
     def conn(self, uri, query=None):
