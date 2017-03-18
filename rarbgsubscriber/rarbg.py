@@ -17,24 +17,16 @@ LOG = logging.getLogger(__name__)
 
 class RarbgClient(object):  # pylint: disable=too-few-public-methods
     def __init__(self):
-        # TODO: how to pass bot check
-        # self._cookie = "skt=EQI257g1z2; skt=EQI257g1z2; wQnP98Kj=wZkvrmuL; LastVisit=1475202467; wQnP98Kj=wZkvrmuL; expla=1; tcc; expla2=1%7CFri%2C%2030%20Sep%202016%2008%3A28%3A25%20GMT"
-        self._cookie = 'LastVisit=1488022701; tcc; aby=2; skt=QRWUKin46h; wQnP98Kj=wZkvrmuL; skt=QRWUKin46h; wQnP98Kj=wZkvrmuL'
+        self._cookie = 'expla2=3%7CSat%2C%2018%20Mar%202017%2013%3A17' \
+            '%3A56%20GMT; LastVisit=1489826568; wQnP98Kj=wZkvrmuL;' \
+            'expla=2; tcc; aby=2'
         self._host = 'http://rarbg.to'
 
     def conn(self, uri, query=None):
         url = urlparse.urljoin(self._host, uri)
         header = {
-            'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Encoding':'gzip, deflate, sdch, br',
-            'Accept-Language':'en-US,en;q=0.8',
-            'Cache-Control':'max-age=0',
-            'Connection':'keep-alive',
-            'Upgrade-Insecure-Requests':'1',
             'Cookie': self._cookie,
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36',
-            'Host':'rarbg.to',
-            'Referer':'https://rarbg.to/enable_cookies'
+            'Host': 'rarbg.to',
         }
 
         sess = requests.Session()
@@ -242,6 +234,8 @@ class RarbgSubscriber(object):
                 LOG.info("New torrent %s", info)
                 self._pool.insert(info)
                 self._handler_mgr.register(info)
+            # TODO: rate control
+            time.sleep(5)
 
         self._handler_mgr.submit()
 

@@ -8,18 +8,22 @@ import logging.handlers
 from collections import defaultdict
 
 from .rarbg import RarbgDaemon
-from .pool import (MoviePool, MovieInfo)
+from .pool import MoviePool
 from .handler import HandlerManager
 from .filter import Filter
 
 
+# pylint: disable=redefined-outer-name
 def setting_logger(workspace, debug):
     log_dict = {
         "version": 1,
-        "disable_existing_loggers": not debug,
-        "root": {
-            "level": "NOTSET",
-            "handlers": ["console", "file"]
+        "disable_existing_loggers": False,
+        "propagate": True,
+        "loggers": {
+            '': {
+                "level": logging.DEBUG if debug else logging.INFO,
+                "handlers": ["console", "file"]
+            },
         },
         "handlers": {
             "console": {
@@ -50,10 +54,12 @@ def setting_logger(workspace, debug):
     logging.config.dictConfig(log_dict)
 
 
+# pylint: disable=invalid-name
 parser = argparse.ArgumentParser()
 parser.add_argument('--conf', required=True,
                     help='configure of rarbg subscriber')
-parser.add_argument('-f', '--foreground', action='store_true', help='run in foreground')
+parser.add_argument('-f', '--foreground', action='store_true',
+                    help='run in foreground')
 args = parser.parse_args()
 
 with open(args.conf, 'rb') as fp:
@@ -63,6 +69,8 @@ with open(args.conf, 'rb') as fp:
 
     general_conf = conf['general']
     workspace = general_conf.get('workspace', 'RarbgSubscriber')
+    if not os.path.exists(workspace):
+        os.mkdir(workspace)
     pidfile = os.path.join(workspace, 'pid')
     interval = general_conf.get('interval')
     db_path = os.path.join(workspace, 'pool')
@@ -74,7 +82,8 @@ with open(args.conf, 'rb') as fp:
         if conf['handler_mgr'] else None
 
     setting_logger(workspace, debug)
-    daemon = RarbgDaemon(pidfile, pool, filter_=filter_, handler_mgr=handler_mgr,
+    daemon = RarbgDaemon(pidfile, pool, filter_=filter_,
+                         handler_mgr=handler_mgr,
                          interval=interval)
     if args.foreground:
         daemon.run()
