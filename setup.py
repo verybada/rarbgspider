@@ -9,9 +9,11 @@ setup(
     keywords="rarbg",
     packages=['rarbgsubscriber'],
     install_requires=[
-        "requests",
-        "lxml",
-        "bs4",
-        "guessit"
+        'rarbgapi'
     ],
+    entry_points={
+        'console_scripts': [
+            'rarbg=rarbgsubscirber.rarbgdaemon:main'
+        ]
+    }
 )
