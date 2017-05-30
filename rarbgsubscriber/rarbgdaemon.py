@@ -1,3 +1,5 @@
+import sys
+import json
 import time
 import sqlite3
 import argparse
@@ -8,9 +10,10 @@ from .rarbgsubscriber import RarbgSubscriber
 
 class RarbgDaemon(Daemon):
     def __init__(self, config, database):
-        super(RarbgDaemon, self).__init__()
+        super(RarbgDaemon, self).__init__(pidfile='rarbg.pid')
         with open(config, 'r') as fp:
-            self._conf = fp.read()
+            data = fp.read()
+            self._conf = json.loads(data)
         self._conn = sqlite3.connect(database, check_same_thread=False)
         self._rarbg = RarbgSubscriber(self._conf, self._conn)
         self._stop = False
@@ -29,8 +32,12 @@ class RarbgDaemon(Daemon):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--conf')
-    parser.add_argument('--db')
+    parser.add_argument('--conf', required=True)
+    parser.add_argument('--db', required=True)
     args = parser.parse_args()
     daemon = RarbgDaemon(args.conf, args.db)
     daemon.start()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
