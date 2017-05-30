@@ -6,11 +6,23 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-LOG = logging.getLogger()
-
-
 class HandlerManager(object):
+    '''
+    {
+        'html': {
+            'output': '/foo/bar/output.html'
+        },
+        'email': {
+            'host': 'xxx',
+            'port': xxx,
+            'account': 'xxx',
+            'password': 'xxx',
+            'to': ['a@mail.com', 'b@mail.com']
+        }
+    }
+    '''
     def __init__(self, conf):
+        self._log = logging.getLogger(__name__)
         self._conf = conf
         self._handlers = []
         self._parse_conf()
@@ -21,18 +33,19 @@ class HandlerManager(object):
             if name == "email":
                 handler = EmailHandler(**value_dict)
             elif name == "html":
-                # pylint: disable=R0204
                 handler = HtmlHandler(**value_dict)
             else:
-                LOG.debug("Unknow handler %s", name)
+                self._log.debug("Unknow handler %s", name)
 
-            if handler:
-                LOG.debug("append %s handler", type(handler))
-                self._handlers.append(handler)
+            if not handler:
+                continue
 
-    def register(self, movie_info):
+            self._log.debug("append %s handler", type(handler))
+            self._handlers.append(handler)
+
+    def register(self, torrent):
         for handler in self._handlers:
-            handler.register(movie_info)
+            handler.register(torrent)
 
     def submit(self):
         for handler in self._handlers:
@@ -46,7 +59,7 @@ class Handler(object):
     def init(self):
         pass
 
-    def register(self, movie_info):
+    def register(self, torrent):
         pass
 
     def submit(self):
@@ -56,7 +69,7 @@ class Handler(object):
 class HtmlHandler(Handler):
     def __init__(self, output="RarbgSubscriber.html"):
         super(HtmlHandler, self).__init__()
-        self._info = list()
+        self._torrents = list()
         self.output = output
 
     def _info_to_html(self):
@@ -64,40 +77,24 @@ class HtmlHandler(Handler):
         html += "<table border==1>"
         html += """
             <tr>
-                <th bgcolor="#b8b894">Thumbnail</th>
                 <th bgcolor="#b8b894">Title</th>
-                <th bgcolor="#b8b894">Genres</th>
-                <th bgcolor="#b8b894">Resoltion</th>
-                <th bgcolor="#b8b894">Format</th>
-                <th bgcolor="#b8b894">Size</th>
-                <th bgcolor="#b8b894">Video codec</th>
-                <th bgcolor="#b8b894">Audio codec</th>
-                <th bgcolor="#b8b894">Imdb</th>
+                <th bgcolor="#b8b894">Category</th>
                 <th bgcolor="#b8b894">Link</th>
             </tr>"""
-        for info in self._info:
+        for torrent in self._torrents:
             html += """
                 <tr>
-                    <img src="%s" width="auto" height="auto"></img>
                     <td align=center>%s</td>
                     <td align=center>%s</td>
                     <td align=center>%s</td>
-                    <td align=center>%s</td>
-                    <td align=center>%s</td>
-                    <td align=center>%s</td>
-                    <td align=center>%s</td>
-                    <td align=center>%s</td>
-                    <a href=\"%s\">Torrent</a>
-                </tr>""" % (info.image, info.title, info.genres,
-                            info.resolution, info.format,
-                            info.size, info.video_codec, info.audio_codec,
-                            info.imdb, info.href)
+                </tr>
+            """ % (torrent.filename, torrent.category, torrent.download)
         html += "</table>"
         html += "</html>"
         return html
 
-    def register(self, movie_info):
-        self._info.append(movie_info)
+    def register(self, torrent):
+        self._torrents.append(torrent)
 
     def submit(self):
         # pylint: disable=invalid-name
@@ -128,11 +125,12 @@ class EmailHandler(HtmlHandler):
         self._account = account
         self._password = password
         self._to = to
+        self._log = logging.getLogger(__name__)
 
     def submit(self):
         today = date.today()
-        if not self._info:
-            LOG.info("%s without any updated torrent", today)
+        if not self._torrents:
+            self._log.info("%s without any updated torrent", today)
             return
         outer = MIMEMultipart()
         outer['Subject'] = "%s RARBG updated torrents" % today
@@ -146,5 +144,5 @@ class EmailHandler(HtmlHandler):
         s.starttls()
         s.login(self._account, self._password)
         s.sendmail(self._account, self._to, outer.as_string())
-        LOG.info("%s has %d new torrents, sending mail to %s",
-                 today, len(self._info), self._to)
+        self._log.info("%s has %d new torrents, sending mail to %s",
+                       today, len(self._torrents), self._to)
