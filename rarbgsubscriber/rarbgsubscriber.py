@@ -10,7 +10,6 @@ from .pool import TorrentPool
 from .handler import HandlerManager
 
 
-# TODO: title supports or
 class RarbgSubscriber(Thread):
     '''
     {
