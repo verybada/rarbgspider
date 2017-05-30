@@ -1,4 +1,1 @@
-requests
-lxml
-bs4
-guessit
+rarbgapi
