@@ -4,7 +4,7 @@ import time
 import logging
 import sqlite3
 import argparse
-import logging.config
+import logging.config  # pylint: disable=ungrouped-imports
 
 from .daemon import Daemon
 from .rarbgsubscriber import RarbgSubscriber
@@ -13,7 +13,7 @@ from .rarbgsubscriber import RarbgSubscriber
 class RarbgDaemon(Daemon):
     def __init__(self, config, database):
         super(RarbgDaemon, self).__init__(pidfile='rarbg.pid')
-        with open(config, 'r') as fp:
+        with open(config, 'r') as fp:  # pylint: disable=invalid-name
             data = fp.read()
             self._conf = json.loads(data)
         self._conn = sqlite3.connect(database, check_same_thread=False)

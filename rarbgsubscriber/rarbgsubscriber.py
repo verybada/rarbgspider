@@ -1,6 +1,5 @@
 import time
 import logging
-import sqlite3
 import itertools
 from threading import Thread
 
