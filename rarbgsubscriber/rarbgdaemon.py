@@ -27,7 +27,7 @@ class RarbgDaemon(Daemon):
         while self.daemon_alive:
             if not subscriber.is_alive():
                 self._log.info('subscriber not alive')
-                self.daemon_alive = True
+                self.daemon_alive = False
                 continue
             time.sleep(1)
         self._log.info('rarbg stopping')
