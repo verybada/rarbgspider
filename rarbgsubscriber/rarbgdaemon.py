@@ -18,18 +18,18 @@ class RarbgDaemon(Daemon):
             self._conf = json.loads(data)
         self._conn = sqlite3.connect(database, check_same_thread=False)
         self._rarbg = RarbgSubscriber(self._conf, self._conn)
-        self._stop = False
-
-    def stop(self):
-        self._stop = True
+        self._log = logging.getLogger(__name__)
 
     def run(self):
+        self._log.info('rarbg starting %s', json.dumps(self._conf, indent=4))
         subscriber = RarbgSubscriber(self._conf, self._conn)
         subscriber.start()
-        while not self._stop:
+        while self.daemon_alive:
             time.sleep(1)
+        self._log.info('rarbg stopping')
         subscriber.stop()
         subscriber.join()
+        self._log.info('rarbg stopped')
 
 
 def setup_logger(workspace, verbose=False):
