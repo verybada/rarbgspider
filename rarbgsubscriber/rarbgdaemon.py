@@ -4,6 +4,7 @@ import time
 import logging
 import sqlite3
 import argparse
+import logging.config
 
 from .daemon import Daemon
 from .rarbgsubscriber import RarbgSubscriber
