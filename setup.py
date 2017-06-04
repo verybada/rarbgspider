@@ -11,6 +11,9 @@ setup(
     install_requires=[
         'rarbgapi'
     ],
+    extras_require={
+        'travis': ['pep8', 'pylint']
+    },
     entry_points={
         'console_scripts': [
             'rarbg=rarbgsubscirber.rarbgdaemon:main'
