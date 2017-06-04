@@ -72,32 +72,3 @@ class RarbgSubscriber(Thread):
                 self.stop()
                 continue
             time.sleep(interval)
-
-
-if __name__ == '__main__':
-    conf = {
-        'channel': {
-            '44': {
-                'title': ['2016+dts', '2017+dts']
-            },
-        },
-        'handlers': {
-            'html': {
-                'output': 'output.html'
-            },
-            'email': {
-                'host': 'smtp-mail.outlook.com',
-                'port': 587,
-                'account': 'rarbgspider@hotmail.com',
-                'password': 'rarbg123456',
-                'to': ['verybada.lin@gmail.com']
-            }
-        }
-    }
-
-    conn = sqlite3.connect('job.db', check_same_thread=False)
-    r = RarbgSubscriber(conf, conn)
-    r.start()
-    r.join()
-    conn.commit()
-    conn.close()
