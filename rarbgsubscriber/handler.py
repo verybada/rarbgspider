@@ -29,18 +29,16 @@ class HandlerManager(object):
 
     def _parse_conf(self):
         for name, value_dict in self._conf.iteritems():
-            handler = None
-            if name == "email":
-                handler = EmailHandler(**value_dict)
-            elif name == "html":
-                handler = HtmlHandler(**value_dict)
-            else:
+            if name not in ['email', 'html']:
                 self._log.debug("Unknow handler %s", name)
-
-            if not handler:
                 continue
 
-            self._log.debug("append %s handler", type(handler))
+            handler = None
+            if name == 'email':
+                handler = EmailHandler(**value_dict)
+            elif name == 'html':
+                handler = HtmlHandler(**value_dict)
+            self._log.debug('append %s handler', handler)
             self._handlers.append(handler)
 
     def register(self, torrent):
