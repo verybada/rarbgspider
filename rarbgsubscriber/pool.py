@@ -44,3 +44,6 @@ class TorrentPool(object):
             })
             result.append(torrent)
         return result
+
+    def commit(self):
+        self._conn.commit()

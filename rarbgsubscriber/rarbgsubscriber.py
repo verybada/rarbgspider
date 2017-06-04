@@ -67,6 +67,7 @@ class RarbgSubscriber(Thread):
                     self._pool.insert(torrent)
 
             self._handlers.submit()
+            self._pool.commit()
             if not interval:
                 self.stop()
                 continue
