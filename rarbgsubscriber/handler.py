@@ -91,6 +91,9 @@ class HtmlHandler(Handler):
         html += "</html>"
         return html
 
+    def _reset(self):
+        self._torrents = list()
+
     def register(self, torrent):
         self._torrents.append(torrent)
 
@@ -105,6 +108,7 @@ class HtmlHandler(Handler):
         with open(self.output, "w+") as fp:
             html = self._info_to_html()
             fp.write(html)
+        self._reset()
 
 
 class EmailHandler(HtmlHandler):
@@ -144,3 +148,4 @@ class EmailHandler(HtmlHandler):
         s.sendmail(self._account, self._to, outer.as_string())
         self._log.info("%s has %d new torrents, sending mail to %s",
                        today, len(self._torrents), self._to)
+        self._reset()
