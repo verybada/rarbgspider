@@ -61,7 +61,7 @@ class RarbgSubscriber(Thread):
 
                 for torrent in itertools.chain(*gens):
                     if self._pool.query(torrent.filename, torrent.category):
-                        break
+                        continue
                     self._handlers.register(torrent)
                     self._pool.insert(torrent)
 
