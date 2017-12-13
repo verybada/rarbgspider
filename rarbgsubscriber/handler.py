@@ -114,18 +114,20 @@ class HtmlHandler(Handler):
 class EmailHandler(HtmlHandler):
     # pylint: disable=too-many-arguments
     def __init__(self, host=None, port=None,
-                 account=None, password=None, to=None):
+                 account=None, password=None, from_=None, to=None):
         assert host
         assert port
         assert account
         assert password
         assert to
+        assert from_
 
         super(EmailHandler, self).__init__()
         self._host = host
         self._port = port
         self._account = account
         self._password = password
+        self._from = from_
         self._to = to
         self._log = logging.getLogger(__name__)
 
@@ -136,7 +138,7 @@ class EmailHandler(HtmlHandler):
             return
         outer = MIMEMultipart()
         outer['Subject'] = "%s RARBG updated torrents" % today
-        outer['From'] = self._account
+        outer['From'] = self._from
         outer['To'] = ','.join(self._to)
         html = self._info_to_html()
         msg = MIMEText(html, 'html')
@@ -145,7 +147,7 @@ class EmailHandler(HtmlHandler):
         s = smtplib.SMTP(self._host, self._port)
         s.starttls()
         s.login(self._account, self._password)
-        s.sendmail(self._account, self._to, outer.as_string())
+        s.sendmail(self._from, self._to, outer.as_string())
         self._log.info("%s has %d new torrents, sending mail to %s",
                        today, len(self._torrents), self._to)
         self._reset()
