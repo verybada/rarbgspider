@@ -9,7 +9,7 @@ setup(
     keywords="rarbg",
     packages=['rarbgsubscriber'],
     install_requires=[
-        'rarbgapi'
+        'rarbgapi==0.1.1'
     ],
     extras_require={
         'travis': ['pep8', 'pylint']
