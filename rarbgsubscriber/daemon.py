@@ -133,6 +133,12 @@ class Daemon(object):
             pf = file(self.pidfile, 'r')
             pid = int(pf.read().strip())
             pf.close()
+            
+            proc_path = '/proc/%s/cmdline' % pid
+            fp = open(proc_path)
+            if 'rarbg' not in fp.read():
+                pid = None
+            fp.close()
         except IOError:
             pid = None
         except SystemExit:
